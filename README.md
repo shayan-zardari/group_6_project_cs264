@@ -41,3 +41,6 @@ Out Of Scope:
 - Group Collaboration on the web app for group schedules
 
 - Automatic sorting and finding gaps based on previous inputs from past days or weeks
+
+Current Status: Folders and project outlined.
+
