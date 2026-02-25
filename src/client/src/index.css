@@ -1,9 +1,77 @@
-:root {
-  height: 100%;
-  width: 100%;
+* {
+  padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 
-body {
-  background-color: white;
+.navbar {
+  background-color: #333;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.navbar-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.navbar-buttons button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.navbar-buttons button:hover {
+  background-color: #555;
+}
+
+.add-task-btn {
+  display: inline;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-task-btn:hover {
+  background-color: #45a049;
+}
+
+@media (max-width: 768px) {
+  .navbar-buttons {
+    gap: 0.3rem;
+  }
+
+  .navbar-buttons button {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .add-task-btn {
+    display: none;
+  }
+  .navbar-logo {
+    font-size: 1.2rem;
+  }
 }
