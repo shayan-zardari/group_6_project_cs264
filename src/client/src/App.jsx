@@ -1,5 +1,11 @@
 import SidebarLayout from "./components/SidebarLayout";
+import Footer from "./components/Footer";
 
 export default function App() {
-  return <SidebarLayout>{/* blank page for now */}</SidebarLayout>;
+  return (
+    <>
+    <SidebarLayout/>
+    <Footer/>
+    </>
+  );
 }
