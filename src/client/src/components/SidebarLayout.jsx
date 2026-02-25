@@ -2,15 +2,22 @@ import { useState } from "react";
 import "./SidebarLayout.css";
 
 export default function SidebarLayout({ children }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false); // start collapsed
 
   return (
     <div className="layout">
+      {/* small edge button when closed */}
+      {!open && (
+        <button className="sidebar-peek" onClick={() => setOpen(true)} aria-label="Open sidebar">
+          {"›"}
+        </button>
+      )}
+
       <aside className={`sidebar ${open ? "open" : "closed"}`}>
         <div className="side-top">
           <span className="side-title">Menu</span>
-          <button className="toggle" onClick={() => setOpen(false)} aria-label="Close">
-            {"<"}
+          <button className="toggle" onClick={() => setOpen(false)} aria-label="Close sidebar">
+            {"‹"}
           </button>
         </div>
 
@@ -31,12 +38,6 @@ export default function SidebarLayout({ children }) {
           <button disabled>Add Task</button>
         </div>
       </aside>
-
-      {!open && (
-        <button className="peek" onClick={() => setOpen(true)} aria-label="Open sidebar">
-          {">"}
-        </button>
-      )}
 
       <main className="main">{children}</main>
     </div>
