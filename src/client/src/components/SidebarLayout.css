@@ -32,8 +32,8 @@
   position: fixed;
   top: 14px;
   left: 10px;
-  width: 34px;
-  height: 34px;
+  width: 16px;
+  height: 24px;
   border-radius: 10px;
   border: 1px solid #ddd;
   background: #fff;
@@ -48,9 +48,7 @@
 }
 
 .side-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
   margin-bottom: 12px;
 }
 
@@ -59,12 +57,17 @@
 }
 
 .toggle {
+  position: absolute;
+  top: 14px;
+  right: 10px;
   width: 34px;
   height: 34px;
   border-radius: 10px;
   border: 1px solid #ddd;
   background: #fff;
   cursor: pointer;
+  padding: 0;
+  margin: 0;
 }
 
 .side-section {
@@ -82,7 +85,7 @@
 
 .sidebar input,
 .sidebar textarea,
-.sidebar button {
+.sidebar button:not(.toggle) {
   width: 100%;
   margin-top: 8px;
   padding: 8px;
