@@ -1,10 +1,12 @@
+import "../index.css"
+
 export default function Footer() {
     return (
         <footer>
             <div>
 
                 <div class="footer-left">
-                    <h2 class="logo">TaskScheduler</h2>
+                    <h2 class="logo">Task Scheduler</h2>
                     <p>Plan smarter. Achieve faster.</p>
                 </div>
 

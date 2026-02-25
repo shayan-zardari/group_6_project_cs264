@@ -5,7 +5,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <div className="navbar-logo">MyApp</div>
+        <div className="navbar-logo">Task Scheduler</div>
         <div className="navbar-buttons">
           <button>Home</button>
           <button>About</button>
