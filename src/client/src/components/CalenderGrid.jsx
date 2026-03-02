@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -10,11 +10,23 @@ const hours = Array.from({ length: 24 }, (_, i) => {
 export default function CalendarGrid() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [tasks, setTasks] = useState({});
   const [task, setTask] = useState({
     name: "",
     description: "",
     priority: "medium",
   });
+
+  /* Load tasks from localStorage */
+  useEffect(() => {
+    const stored = localStorage.getItem("calendarTasks");
+    if (stored) setTasks(JSON.parse(stored));
+  }, []);
+
+  /* Save tasks to localStorage */
+  useEffect(() => {
+    localStorage.setItem("calendarTasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   const openModal = (day, hour) => {
     setSelectedSlot({ day, hour });
@@ -28,7 +40,14 @@ export default function CalendarGrid() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Task created:", { ...task, ...selectedSlot });
+
+    const key = `${selectedSlot.day}-${selectedSlot.hour}`;
+
+    setTasks((prev) => ({
+      ...prev,
+      [key]: { ...task, ...selectedSlot },
+    }));
+
     closeModal();
   };
 
@@ -51,13 +70,24 @@ export default function CalendarGrid() {
           {hours.map((hour) => (
             <React.Fragment key={hour}>
               <div className="calendar-time">{hour}</div>
-              {days.map((day) => (
-                <div
-                  key={`${day}-${hour}`}
-                  className="calendar-cell"
-                  onClick={() => openModal(day, hour)}
-                />
-              ))}
+              {days.map((day) => {
+                const key = `${day}-${hour}`;
+                const slotTask = tasks[key];
+
+                return (
+                  <div
+                    key={key}
+                    className="calendar-cell"
+                    onClick={() => openModal(day, hour)}
+                  >
+                    {slotTask && (
+                      <div className={`task-badge ${slotTask.priority}`}>
+                        {slotTask.name}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </React.Fragment>
           ))}
         </div>
