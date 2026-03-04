@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   test: {
+    // test commands
     environment: "jsdom",
     css: false, // ignores CSS imports during testing
     include: ["../../tests/frontend/*.test.js"],
