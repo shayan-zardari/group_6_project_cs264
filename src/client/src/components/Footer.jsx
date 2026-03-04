@@ -5,19 +5,19 @@ export default function Footer() {
         <footer>
             <div>
 
-                <div class="footer-left">
+                <div className="footer-left">
                     <h2 class="logo">Task Scheduler</h2>
                     <p>Plan smarter. Achieve faster.</p>
                 </div>
 
-                <div class="footer-center">
+                <div className="footer-center">
                     <a href="#">Home</a>
                     <a href="#">Tasks</a>
                     <a href="#">Calendar</a>
                     <a href="#">About</a>
                 </div>
 
-                <div class="footer-right">
+                <div className="footer-right">
                     <p id="copyright"></p>
                 </div>
 
