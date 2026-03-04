@@ -1,52 +1,60 @@
-### Final Project 
+### Final Project
 
-Communication mode: iMessages Group Chat
+Roles:
+Shayan: Database Engineer, in charge of keeping track of commits and no intereference - Team Lead
+Souleymane: Backend Deveeloper, making sure all functionality is working and everything is working - Backend
+Ridone: Frontend Developer, making it visually proactive and css looking pretty and useable - Frontend
+Raheen: Frontend Developer, making it visually proactive and css looking pretty and useable - Frontend
+Angela: Frontend Developer, making it visually proactive and css looking pretty and useable - Frontend
 
-App Idea: A Task Manager web application.
+## Client — Local setup & run
 
-Tech Stack: HTML, CSS, JavaScript, CSV
+**Prerequisites:**
 
-Project Name: Scheduling Task Manager
+- **Node.js:** install Node.js (LTS recommended, e.g. v16+ or v18+).
+- **Package manager:** `npm` (bundled with Node) or `yarn`/`pnpm`.
 
-Primary User: Student
+**Quick start (development):**
 
-Problem Statement: How can students organize their schedule through a web application in order to find time within their schedule to finish other tasks which do not fall with in other used time.
+1. Open a terminal and change to the client folder:
 
-Workflow: 
+```
+cd src/client
+```
 
-Step 1: Sign in and enter fixed time schedules.
+2. Install dependencies:
 
-Step 2: Add tasks which need certain amount of time and due dates.
+```
+npm install
+```
 
-Step 3: Able to view daily/weekly/monthly schedule that shows time gaps.
+3. Run the dev server:
 
-Step 4: Assign tasks into the free time blocks.
+```
+npm run dev
+```
 
-Step 5: Mark tasks completed and update schedule as needed.
+4. Open the app in your browser at `http://localhost:5173` (Vite's default port).
 
-Step 6: Set reminders for edits or upcoming tasks.
+**Build & preview (production):**
 
-MVP Scope:
+```
+cd src/client
+npm run build
+npm run preview
+```
 
-Schedule Builder: Create/Edit fixed time blocks for daily and weekly view
+`npm run preview` serves the production build locally so you can verify the output.
 
-Task List: add/edit/delete tasks with deadlines, and priorty queue
+**Linting:**
 
-Open Time Algorithm: Finds free time available after fixed time is enter, and prioritizes tasks as listed priority number
+```
+cd src/client
+npm run lint
+```
 
-Out Of Scope:
+**Notes:**
 
-- Calendar syncing with Apple/Outlook/Google
-
-- Group Collaboration on the web app for group schedules
-
-- Automatic sorting and finding gaps based on previous inputs from past days or weeks
-
-Current Status: Folders and project outlined.
-
-Roles: 
-    Shayan: Database Engineer, in charge of keeping track of commits and no intereference - Team Lead
-    Souleymane: Backend Deveeloper, making sure all functionality is working and everything is working - Backend
-    Ridone: Frontend Developer, making it visually proactive and css looking pretty and useable - Frontend
-    Raheen: Frontend Developer, making it visually proactive and css looking pretty and useable - Frontend
-    Angela: Frontend Developer, making it visually proactive and css looking pretty and useable - Frontend
+- The client is a Vite + React app. Scripts available in [src/client/package.json](src/client/package.json).
+- Vite's default port is `5173`; change it in `vite.config.js` or by setting the `PORT` environment variable if needed.
+- If you use `yarn` or `pnpm`, replace `npm install` and `npm run ...` with the equivalent commands.
