@@ -90,31 +90,12 @@ Write an honest list of 3–5 known limitations to present on demo day. Examples
 
 ---
 
-## Demo Day — April 6
-
-**Suggested narrative order:**
-1. Problem statement + core user stories (1–2 min)
-2. Live demo: add courses, trigger a conflict, view schedule (3–4 min)
-3. Show tests running in the terminal (1 min)
-4. Point to the 2 reliability fix PRs in GitHub (1 min)
-5. Known Issues list (30 sec)
-6. What we'd do next (30 sec)
-
-**Likely Q&A — prepare answers for these:**
-- "How does your conflict detection work?" — be ready to show the logic in code
-- "What would you fix or add if you had more time?"
-- "Where are your tests and what do they cover?"
-- "What broke during development and how did you fix it?" — this is your reliability fixes answer
-
-
----
-
 ## Team Assignments Summary
 
 | Name | Role | M4 Focus |
 |---|---|---|
 | Shayan | Database Engineer / Team Lead | DB schema, CI setup, git tag |
-| Souleymane | Backend Developer | API endpoints, logging, reliability fixes |
-| Ridone | Frontend Developer | API integration, UI error states |
+| Ridone | Backend Developer | API endpoints, logging, reliability fixes |
+| Souleymane | Frontend Developer | API integration, UI error states |
 | Raheen | Frontend Developer | API integration, UI error states |
 | Angela | Frontend Developer | API integration, testing support |
