@@ -10,12 +10,10 @@
 | Area | Status |
 |---|---|
 | React UI | ✅ Done |
-| Database + backend API | ❌ Not started |
-| Tests | ❌ Not started |
+| Database + backend API | ❌ In Progress |
+| Tests | ❌ In Progress |
 | Error handling / reliability fixes | ❌ Not started |
-| Logging + config management | ❌ Not started |
-| CI pipeline | ❌ Not started |
-| Beta git tag (`v0.9.0-beta`) | ❌ Not started |
+
 
 ---
 
@@ -27,18 +25,19 @@
 - Tables: `users`, `courses`, `schedules`, `conflicts`
 - Write Definition of Done for each core user story in the README
 
-**Souleymane (Backend Developer)**
-- Build core REST API endpoints:
-  - `POST /schedule/add` — add a course
-  - `DELETE /schedule/drop` — drop a course
-  - `GET /schedule/:userId` — get a student's schedule
-  - Conflict detection logic — reject overlapping time slots
+**Ridone (Backend Developer)**
+  Create algorithms for searching for local availability for tasks - Freetime Algorithm
+  Create functionality for user to put reminders - Reminders
+  Create task time conflict if they fall with in same time - Time Conflict Resolver
+  Upgrade add task functionality to multiple time blocks
 
-**Ridone, Raheen, Angela (Frontend)**
+**Ridone and Shayan (Frontend)**
 - Replace all hardcoded/mock data in the React UI with real `fetch()` calls to the API
 - Add loading states while API calls are in progress
+- Create the other webpages for the different calendar views.
+- Upgrade navbar
 
-**Goal by Mar 23:** A user can add a course, see their schedule, and get a rejection if there's a time conflict — end to end.
+**Goal by Mar 23:** A user can add a task, see their schedule, and get a rejection if there's a time conflict — end to end.
 
 ---
 
@@ -59,23 +58,10 @@ Write 2 integration tests:
 - End-to-end: add course → verify it appears in schedule
 - End-to-end: add conflicting course → expect rejection response
 
-**Reliability Fixes (Souleymane + frontend)**
-
-Fix at least 2 documented reliability issues. Recommended targets:
-
-1. **Server crash on invalid input** — add input validation to API endpoints; return a `400` with a clear error message instead of crashing
-2. **Silent API failure in UI** — add visible error states in the React UI so users know when something goes wrong (e.g. "Could not load schedule — please try again")
-
-> Document each fix in its own pull request so you can point to them during the M4 presentation.
-
-**Operability (Souleymane + Shayan)**
-- Add server-side logging: log all requests and errors to both console and an `app.log` file
-- Add a `.env` file for configuration: server port, database path
-- Add `.env` to `.gitignore` and provide a `.env.example` template
 
 ---
 
-## Week 3 — Hardening + Presentation Prep (Mar 31–Apr 5)
+**Presentation Prep** 
 **Focus: CI, beta tag, demo rehearsal**
 
 **Engineering (Shayan)**
@@ -120,18 +106,6 @@ Write an honest list of 3–5 known limitations to present on demo day. Examples
 - "Where are your tests and what do they cover?"
 - "What broke during development and how did you fix it?" — this is your reliability fixes answer
 
----
-
-## Rubric Mapping
-
-| Criterion | What we're doing to hit it | Target |
-|---|---|---|
-| MVP completeness | DB + API + UI connected by Mar 23; all user stories working | 4 |
-| Testing proficiency | 6+ unit tests covering edge cases + 2 integration tests | 4 |
-| Quality & reliability | 2 documented reliability fixes with PR links; UI error states | 4 |
-| Engineering practice | CI green by Apr 5; tests cover high-risk areas; beta tag pushed | 3–4 |
-| Presentation skills | Assigned roles, rehearsed once, Q&A prepared, Known Issues list | 4 |
-| Operability basics | Logging to file + `.env` config management | 4 |
 
 ---
 
