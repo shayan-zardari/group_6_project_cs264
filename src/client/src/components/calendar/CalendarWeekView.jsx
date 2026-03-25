@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   DAYS,
   HOURS,
   getSlotKey,
-  loadTasks,
-  saveTasks,
-} from "./calendar/taskStorage";
+  getDateValueFromDate,
+} from "./taskStorage";
 
-export default function CalendarGrid() {
+export default function CalendarWeekView({
+  anchorDate,
+  onAnchorDateChange,
+  tasks,
+  setTasks,
+}) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [tasks, setTasks] = useState(() => loadTasks());
   const [task, setTask] = useState({
     name: "",
     description: "",
@@ -19,18 +22,29 @@ export default function CalendarGrid() {
     dueDate: "",
   });
 
-  /* Save tasks to localStorage */
-  useEffect(() => {
-    saveTasks(tasks);
-  }, [tasks]);
+  const weekStart = useMemo(() => {
+    const d = new Date(anchorDate);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - d.getDay()); // Sunday-start week
+    return d;
+  }, [anchorDate]);
 
-  const openModal = (day, hour) => {
-    setSelectedSlot({ day, hour });
+  const weekDays = useMemo(() => {
+    return DAYS.map((dayName, idx) => {
+      const date = new Date(weekStart);
+      date.setDate(weekStart.getDate() + idx);
+      return { dayName, date, dateValue: getDateValueFromDate(date) };
+    });
+  }, [weekStart]);
+
+  const openModal = (dayName, dateValue, hour) => {
+    setSelectedSlot({ dayName, dateValue, hour });
     setModalOpen(true);
   };
 
   const closeModal = () => {
     setModalOpen(false);
+    setSelectedSlot(null);
     setTask({
       name: "",
       description: "",
@@ -42,8 +56,9 @@ export default function CalendarGrid() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const key = getSlotKey(selectedSlot.day, selectedSlot.hour);
+    if (!selectedSlot) return;
 
+    const key = getSlotKey(selectedSlot.dateValue, selectedSlot.hour);
     setTasks((prev) => ({
       ...prev,
       [key]: { ...task, ...selectedSlot },
@@ -52,8 +67,38 @@ export default function CalendarGrid() {
     closeModal();
   };
 
+  const rangeLabel = `${weekDays[0].date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  })} - ${weekDays[6].date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  })}`;
+
+  const prevWeek = () => {
+    const d = new Date(anchorDate);
+    d.setDate(d.getDate() - 7);
+    onAnchorDateChange(d);
+  };
+
+  const nextWeek = () => {
+    const d = new Date(anchorDate);
+    d.setDate(d.getDate() + 7);
+    onAnchorDateChange(d);
+  };
+
   return (
-    <>
+    <div className="calendar-view">
+      <div className="calendar-nav">
+        <button type="button" className="calendar-nav-btn" onClick={prevWeek}>
+          Prev
+        </button>
+        <div className="calendar-nav-title">{rangeLabel}</div>
+        <button type="button" className="calendar-nav-btn" onClick={nextWeek}>
+          Next
+        </button>
+      </div>
+
       <div className="calendar-wrapper">
         <div
           className="calendar-grid"
@@ -62,24 +107,25 @@ export default function CalendarGrid() {
           }}
         >
           <div className="calendar-corner" />
-          {DAYS.map((day) => (
-            <div key={day} className="calendar-day-header">
-              {day}
+          {weekDays.map((d) => (
+            <div key={d.dayName} className="calendar-day-header">
+              {d.dayName}
+              <div className="calendar-day-date">{d.date.getDate()}</div>
             </div>
           ))}
 
           {HOURS.map((hour) => (
             <React.Fragment key={hour}>
               <div className="calendar-time">{hour}</div>
-              {DAYS.map((day) => {
-                const key = getSlotKey(day, hour);
+              {weekDays.map((d) => {
+                const key = getSlotKey(d.dateValue, hour);
                 const slotTask = tasks[key];
 
                 return (
                   <div
-                    key={key}
+                    key={`${d.dateValue}-${hour}`}
                     className="calendar-cell"
-                    onClick={() => openModal(day, hour)}
+                    onClick={() => openModal(d.dayName, d.dateValue, hour)}
                   >
                     {slotTask && (
                       <div className={`task-badge ${slotTask.priority}`}>
@@ -94,12 +140,13 @@ export default function CalendarGrid() {
         </div>
       </div>
 
-      {modalOpen && (
+      {modalOpen && selectedSlot && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Add Task</h2>
             <p className="modal-subtitle">
-              {selectedSlot.day} at {selectedSlot.hour}
+              {selectedSlot.dayName} ({selectedSlot.dateValue}) at{" "}
+              {selectedSlot.hour}
             </p>
 
             <form onSubmit={handleSubmit}>
@@ -173,6 +220,7 @@ export default function CalendarGrid() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
+

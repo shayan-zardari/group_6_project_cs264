@@ -46,6 +46,11 @@
   color: #4caf50;
 }
 
+.navbar-buttons button.active {
+  background-color: #4caf50;
+  color: white;
+}
+
 .add-task-btn {
   display: inline;
   background-color: #4caf50;
@@ -146,13 +151,72 @@ footer > div {
 
 /* ===== Calendar Grid ===== */
 
+.calendar-view {
+  width: 100%;
+}
+
+.calendar-nav {
+  max-width: 1200px;
+  margin: 1rem auto 1.75rem auto; /* leave room for the header */
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.calendar-nav-title {
+  font-weight: bold;
+  font-size: 1.05rem;
+  color: #333;
+  text-align: center;
+  flex: 1;
+}
+
+.calendar-nav-btn {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-nav-btn:hover {
+  opacity: 0.9;
+}
+
 .calendar-wrapper {
   width: 100%;
   overflow-x: auto;   /* horizontal scroll on small screens */
   overflow-y: auto;   /* vertical scroll for hours */
-  max-height: calc(100vh - 160px); /* leaves room for navbar/footer */
+  max-height: calc(100vh - 220px); /* leaves room for navbar + view header */
   border-top: 1px solid #ccc;
 }
+
+.view-tabs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.75rem 1rem 0.75rem 1rem; /* keeps buttons from hugging the navbar */
+}
+
+.view-tabs button {
+  border: none;
+  background-color: #eee;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #333;
+}
+
+.view-tabs button.active {
+  background-color: #4caf50;
+  color: white;
+}
+
 
 .calendar-grid {
   display: grid;
@@ -175,6 +239,13 @@ footer > div {
   padding: 0.5rem;
   font-weight: bold;
   white-space: nowrap;
+}
+
+.calendar-day-date {
+  font-weight: normal;
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 2px;
 }
 
 /* Time labels */
@@ -364,4 +435,74 @@ footer > div {
 
 .task-badge.high {
   background-color: #e53935;
+}
+
+/* ===== Month View ===== */
+
+.month-wrapper {
+  padding: 0 1rem 1rem 1rem;
+}
+
+.month-weekday-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.month-weekday {
+  text-align: center;
+  font-weight: bold;
+  color: #444;
+  padding: 0.4rem 0;
+}
+
+.month-grid {
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  padding-bottom: 1rem;
+}
+
+.month-cell {
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 6px;
+  padding: 0.4rem;
+  cursor: pointer;
+  min-height: 58px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.month-cell:hover {
+  background-color: #f7f7f7;
+}
+
+.month-cell--outside {
+  opacity: 0.55;
+}
+
+.month-cell-day {
+  font-weight: bold;
+}
+
+.month-cell-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  align-self: flex-end;
+  margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .month-wrapper {
+    padding: 0 0.5rem 1rem 0.5rem;
+  }
 }

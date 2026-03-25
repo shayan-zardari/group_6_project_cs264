@@ -1,7 +1,7 @@
 import React from "react";
 import '../index.css';
 
-export default function Navbar() {
+export default function Navbar({ onAddTask }) {
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -11,7 +11,9 @@ export default function Navbar() {
           <button>About</button>
           <button>Contact</button>
         </div>
-        <button className="add-task-btn">Add Task</button>
+        <button type="button" className="add-task-btn" onClick={onAddTask}>
+          Add Task
+        </button>
       </div>
     </nav>
   );
