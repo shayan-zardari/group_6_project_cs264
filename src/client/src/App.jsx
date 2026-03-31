@@ -29,7 +29,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("calendarBg", calendarBg);
   }, [calendarBg]);
-
   const [addModalOpen, setAddModalOpen] = useState(false);
 
   const formatDateInput = (date) => {

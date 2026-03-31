@@ -97,4 +97,3 @@ export function getTaskCountForDateValue(tasks, dateValue) {
 export function getTasksForSlot(tasks, slotKey) {
   return Array.isArray(tasks[slotKey]) ? tasks[slotKey] : [];
 }
-

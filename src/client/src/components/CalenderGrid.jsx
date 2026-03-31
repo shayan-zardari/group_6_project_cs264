@@ -85,7 +85,12 @@ export default function CalendarGrid() {
               <div className="calendar-time">{hour}</div>
               {DAYS.map((day) => {
                 const key = getSlotKey(day, hour);
-                    const slotTasks = tasks[key] || [];
+                const existing = tasks[key];
+                const slotTasks = Array.isArray(existing)
+                  ? existing
+                  : existing
+                    ? [existing]
+                    : [];
 
                 return (
                   <div
@@ -93,14 +98,14 @@ export default function CalendarGrid() {
                     className="calendar-cell"
                     onClick={() => openModal(day, hour)}
                   >
-                        {slotTasks.slice(0, 3).map((t) => (
-                          <div
-                            key={t.id || `${t.name}-${t.priority}`}
-                            className={`task-badge ${t.priority}`}
-                          >
-                            {t.name}
-                          </div>
-                        ))}
+                    {slotTasks.slice(0, 3).map((t) => (
+                      <div
+                        key={t.id || `${t.name}-${t.priority}`}
+                        className={`task-badge ${t.priority}`}
+                      >
+                        {t.name}
+                      </div>
+                    ))}
                   </div>
                 );
               })}
