@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import CalendarWeekView from "./components/calendar/CalendarWeekView";
 import CalendarDayView from "./components/calendar/CalendarDayView";
 import CalendarMonthView from "./components/calendar/CalendarMonthView";
+import HomePage from "./components/HomePage";
 import {
   getSlotKey,
   HOURS,
@@ -13,13 +14,21 @@ import {
 } from "./components/calendar/taskStorage";
 
 export default function App() {
+  const [page, setPage] = useState("home");
   const [view, setView] = useState("week");
   const [anchorDate, setAnchorDate] = useState(new Date());
   const [tasks, setTasks] = useState(() => loadTasks());
+  const [calendarBg, setCalendarBg] = useState(() => {
+    return localStorage.getItem("calendarBg") || "#f9f9f9";
+  });
 
   useEffect(() => {
     saveTasks(tasks);
   }, [tasks]);
+
+  useEffect(() => {
+    localStorage.setItem("calendarBg", calendarBg);
+  }, [calendarBg]);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
 
@@ -59,76 +68,113 @@ export default function App() {
     if (!addForm.dateValue || !addForm.hour) return;
 
     const key = getSlotKey(addForm.dateValue, addForm.hour);
+    const id = `t-${key}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     setTasks((prev) => ({
       ...prev,
-      [key]: {
-        name: addForm.name,
-        description: addForm.description,
-        priority: addForm.priority,
-        durationMinutes: addForm.durationMinutes,
-        dueDate: addForm.dueDate,
-        dateValue: addForm.dateValue,
-        hour: addForm.hour,
-      },
+      [key]: (() => {
+        const existing = prev[key];
+        const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
+        return [
+          ...list,
+          {
+            id,
+            completed: false,
+            name: addForm.name,
+            description: addForm.description,
+            priority: addForm.priority,
+            durationMinutes: addForm.durationMinutes,
+            dueDate: addForm.dueDate,
+            dateValue: addForm.dateValue,
+            hour: addForm.hour,
+          },
+        ];
+      })(),
     }));
 
     closeAddModal();
   };
 
   return (
-    <>
-      <Navbar onAddTask={openAddModal} />
+    <div className="app-shell" style={{ "--calendar-bg": calendarBg }}>
+      <Navbar
+        onAddTask={openAddModal}
+        page={page}
+        onPageChange={setPage}
+        calendarBg={calendarBg}
+        onCalendarBgChange={setCalendarBg}
+      />
 
-      <div className="view-tabs">
-        <button
-          type="button"
-          className={view === "day" ? "active" : ""}
-          onClick={() => setView("day")}
-        >
-          Day
-        </button>
-        <button
-          type="button"
-          className={view === "week" ? "active" : ""}
-          onClick={() => setView("week")}
-        >
-          Week
-        </button>
-        <button
-          type="button"
-          className={view === "month" ? "active" : ""}
-          onClick={() => setView("month")}
-        >
-          Month
-        </button>
-      </div>
+      {page === "calendar" && (
+        <>
+          <div className="view-tabs">
+            <button
+              type="button"
+              className={view === "day" ? "active" : ""}
+              onClick={() => setView("day")}
+            >
+              Day
+            </button>
+            <button
+              type="button"
+              className={view === "week" ? "active" : ""}
+              onClick={() => setView("week")}
+            >
+              Week
+            </button>
+            <button
+              type="button"
+              className={view === "month" ? "active" : ""}
+              onClick={() => setView("month")}
+            >
+              Month
+            </button>
+          </div>
 
-      {view === "week" && (
-        <CalendarWeekView
-          anchorDate={anchorDate}
-          onAnchorDateChange={setAnchorDate}
-          tasks={tasks}
-          setTasks={setTasks}
-        />
+          {view === "week" && (
+            <CalendarWeekView
+              anchorDate={anchorDate}
+              onAnchorDateChange={setAnchorDate}
+              tasks={tasks}
+              setTasks={setTasks}
+            />
+          )}
+          {view === "day" && (
+            <CalendarDayView
+              anchorDate={anchorDate}
+              onAnchorDateChange={setAnchorDate}
+              tasks={tasks}
+              setTasks={setTasks}
+            />
+          )}
+          {view === "month" && (
+            <CalendarMonthView
+              anchorDate={anchorDate}
+              onAnchorDateChange={setAnchorDate}
+              tasks={tasks}
+              onSelectDate={(date) => {
+                setAnchorDate(date);
+                setView("day");
+              }}
+            />
+          )}
+        </>
       )}
-      {view === "day" && (
-        <CalendarDayView
-          anchorDate={anchorDate}
-          onAnchorDateChange={setAnchorDate}
-          tasks={tasks}
-          setTasks={setTasks}
-        />
+
+      {page === "home" && <HomePage tasks={tasks} setTasks={setTasks} />}
+      {page === "about" && (
+        <div className="simple-page">
+          <h1>About</h1>
+          <p>
+            This is a scheduling task tracker that helps you plan work inside a
+            busy calendar.
+          </p>
+        </div>
       )}
-      {view === "month" && (
-        <CalendarMonthView
-          anchorDate={anchorDate}
-          onAnchorDateChange={setAnchorDate}
-          tasks={tasks}
-          onSelectDate={(date) => {
-            setAnchorDate(date);
-            setView("day");
-          }}
-        />
+      {page === "contact" && (
+        <div className="simple-page">
+          <h1>Contact</h1>
+          <p>For now, this page is a placeholder.</p>
+        </div>
       )}
 
       {addModalOpen && (
@@ -212,7 +258,6 @@ export default function App() {
                 Due date
                 <input
                   type="date"
-                  required
                   value={addForm.dueDate}
                   onChange={(e) => setAddForm({ ...addForm, dueDate: e.target.value })}
                 />
@@ -231,7 +276,7 @@ export default function App() {
         </div>
       )}
 
-      <Footer />
-    </>
+      <Footer onPageChange={setPage} />
+    </div>
   );
 }

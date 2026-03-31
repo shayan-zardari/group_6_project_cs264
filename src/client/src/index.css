@@ -51,6 +51,21 @@
   color: white;
 }
 
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.calendar-theme {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  background: white;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .add-task-btn {
   display: inline;
   background-color: #4caf50;
@@ -78,10 +93,20 @@
   .add-task-btn {
     display: none;
   }
+
+  .calendar-theme {
+    display: none;
+  }
   .navbar-logo {
     font-size: 1.2rem;
   }
 }
+
+.app-shell {
+  min-height: 100vh;
+  background-color: var(--calendar-bg, #f9f9f9);
+}
+
 footer {
   background-color: #333;
   color: white;
@@ -193,6 +218,7 @@ footer > div {
   overflow-y: auto;   /* vertical scroll for hours */
   max-height: calc(100vh - 220px); /* leaves room for navbar + view header */
   border-top: 1px solid #ccc;
+  background-color: var(--calendar-bg, #f9f9f9);
 }
 
 .view-tabs {
@@ -221,19 +247,19 @@ footer > div {
 .calendar-grid {
   display: grid;
   min-width: 900px; /* forces horizontal scroll on mobile */
-  background-color: #f9f9f9;
+  background-color: var(--calendar-bg, #f9f9f9);
 }
 
 /* Top-left empty cell */
 .calendar-corner {
-  background-color: #eee;
+  background-color: var(--calendar-bg, #f9f9f9);
   border-bottom: 1px solid #ccc;
   border-right: 1px solid #ccc;
 }
 
 /* Day headers */
 .calendar-day-header {
-  background-color: #eee;
+  background-color: var(--calendar-bg, #f9f9f9);
   border-bottom: 1px solid #ccc;
   text-align: center;
   padding: 0.5rem;
@@ -255,7 +281,7 @@ footer > div {
   padding: 0.4rem 0.3rem;
   font-size: 0.85rem;
   text-align: right;
-  background-color: #fafafa;
+  background-color: var(--calendar-bg, #f9f9f9);
 }
 
 /* Hour cells */
@@ -264,11 +290,16 @@ footer > div {
   border-right: 1px solid #e0e0e0;
   height: 60px;
   cursor: pointer;
-  background-color: white;
+  background-color: var(--calendar-bg, #f9f9f9);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  padding: 2px 4px;
 }
 
 .calendar-cell:hover {
-  background-color: #f0f8f0;
+  filter: brightness(0.97);
 }
 
 /* ===== Responsive tweaks ===== */
@@ -298,14 +329,14 @@ footer > div {
   position: sticky;
   top: 0;
   z-index: 3;
-  background-color: #eee;
+  background-color: var(--calendar-bg, #f9f9f9);
 }
 
 .calendar-time {
   position: sticky;
   left: 0;
   z-index: 2;
-  background-color: #fafafa;
+  background-color: var(--calendar-bg, #f9f9f9);
 }
 
 /* Top-left corner (time + day intersection) */
@@ -314,7 +345,7 @@ footer > div {
   top: 0;
   left: 0;
   z-index: 4;
-  background-color: #eee;
+  background-color: var(--calendar-bg, #f9f9f9);
 }
 
 
@@ -415,14 +446,16 @@ footer > div {
 /* ===== Task Badge ===== */
 
 .task-badge {
-  margin: 4px;
-  padding: 4px 6px;
+  margin: 0;
+  padding: 3px 6px;
   font-size: 0.75rem;
   border-radius: 4px;
   color: white;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .task-badge.low {
@@ -441,6 +474,7 @@ footer > div {
 
 .month-wrapper {
   padding: 0 1rem 1rem 1rem;
+  background-color: var(--calendar-bg, #f9f9f9);
 }
 
 .month-weekday-row {
@@ -505,4 +539,93 @@ footer > div {
   .month-wrapper {
     padding: 0 0.5rem 1rem 0.5rem;
   }
+}
+
+/* ===== Home page ===== */
+
+.home-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.home-header h1 {
+  margin-bottom: 0.2rem;
+}
+
+.home-subtitle {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.home-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.home-task {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.home-task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.home-task-content {
+  flex: 1;
+}
+
+.home-task-title {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.home-priority {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  color: #fff;
+}
+
+.home-priority--low {
+  background: #9e9e9e;
+}
+.home-priority--medium {
+  background: #4caf50;
+}
+.home-priority--high {
+  background: #e53935;
+}
+
+.home-task-meta {
+  color: #666;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.home-empty {
+  color: #666;
+  background: white;
+  border: 1px dashed #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* ===== Simple pages (About/Contact) ===== */
+
+.simple-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem;
 }

@@ -26,7 +26,7 @@ export function getDateValueFromDate(date) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-// Keyed by a specific date (yyyy-mm-dd) + hour slot, so tasks don't repeat weekly.
+// Keyed by a specific date (yyyy-mm-dd) + hour slot, so tasks don't repeat.
 export function getSlotKey(dateValue, hour) {
   return `${dateValue}-${hour}`;
 }
@@ -41,14 +41,41 @@ export function loadTasks() {
   try {
     const parsed = JSON.parse(stored);
 
-    // Legacy keys were weekday-based like: "Monday-09:00".
-    // If we detect that format, we drop it so the UI doesn't show "recurring" tasks.
+    // Ignore old weekday-based tasks so they don't show up again.
     const keys = Object.keys(parsed || {});
     const isLegacy = keys.some((key) =>
       DAYS.some((d) => key.startsWith(`${d}-`))
     );
 
-    return isLegacy ? {} : parsed;
+    if (isLegacy) return {};
+
+    // Normalize storage into: slotKey -> array of tasks.
+    const next = {};
+    const normalizeTask = (t, slotKey, idx) => {
+      const task = t && typeof t === "object" ? t : {};
+      return {
+        id: task.id || `t-${slotKey}-${idx}`,
+        name: task.name || "",
+        description: task.description || "",
+        priority: task.priority || "medium",
+        durationMinutes: task.durationMinutes ?? "",
+        dueDate: task.dueDate ?? "",
+        dateValue: task.dateValue ?? "",
+        hour: task.hour ?? "",
+        completed: Boolean(task.completed),
+      };
+    };
+
+    for (const [slotKey, value] of Object.entries(parsed || {})) {
+      if (Array.isArray(value)) {
+        next[slotKey] = value.map((t, idx) => normalizeTask(t, slotKey, idx));
+        continue;
+      }
+      if (value && typeof value === "object") {
+        next[slotKey] = [normalizeTask(value, slotKey, 0)];
+      }
+    }
+    return next;
   } catch {
     return {};
   }
@@ -60,9 +87,14 @@ export function saveTasks(tasks) {
 
 export function getTaskCountForDateValue(tasks, dateValue) {
   let count = 0;
-  for (const key of Object.keys(tasks)) {
-    if (key.startsWith(`${dateValue}-`)) count += 1;
+  for (const [key, value] of Object.entries(tasks)) {
+    if (!key.startsWith(`${dateValue}-`)) continue;
+    if (Array.isArray(value)) count += value.length;
   }
   return count;
+}
+
+export function getTasksForSlot(tasks, slotKey) {
+  return Array.isArray(tasks[slotKey]) ? tasks[slotKey] : [];
 }
 

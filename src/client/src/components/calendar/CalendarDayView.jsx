@@ -47,9 +47,22 @@ export default function CalendarDayView({
     if (!selectedSlot) return;
 
     const key = getSlotKey(selectedSlot.dateValue, selectedSlot.hour);
+    const id = `t-${selectedSlot.dateValue}-${selectedSlot.hour}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     setTasks((prev) => ({
       ...prev,
-      [key]: { ...task, ...selectedSlot },
+      [key]: (() => {
+        const existing = prev[key];
+        const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
+        return [
+          ...list,
+          {
+            id,
+            completed: false,
+            ...task,
+            ...selectedSlot,
+          },
+        ];
+      })(),
     }));
 
     closeModal();
@@ -102,7 +115,8 @@ export default function CalendarDayView({
 
           {HOURS.map((hour) => {
             const key = getSlotKey(dateValue, hour);
-            const slotTask = tasks[key];
+            const existing = tasks[key];
+            const slotTasks = Array.isArray(existing) ? existing : existing ? [existing] : [];
 
             return (
               <React.Fragment key={hour}>
@@ -111,9 +125,21 @@ export default function CalendarDayView({
                   className="calendar-cell"
                   onClick={() => openModal(hour)}
                 >
-                  {slotTask && (
-                    <div className={`task-badge ${slotTask.priority}`}>
-                      {slotTask.name}
+                  {slotTasks.slice(0, 3).map((t) => (
+                    <div
+                      key={t.id || `${t.name}-${t.priority}`}
+                      className={`task-badge ${t.priority}`}
+                      style={{
+                        opacity: t.completed ? 0.55 : 1,
+                        textDecoration: t.completed ? "line-through" : "none",
+                      }}
+                    >
+                      {t.name}
+                    </div>
+                  ))}
+                  {slotTasks.length > 3 && (
+                    <div className="task-badge" style={{ backgroundColor: "#666" }}>
+                      +{slotTasks.length - 3}
                     </div>
                   )}
                 </div>
@@ -184,7 +210,6 @@ export default function CalendarDayView({
                 Due date
                 <input
                   type="date"
-                  required
                   value={task.dueDate}
                   onChange={(e) => setTask({ ...task, dueDate: e.target.value })}
                 />

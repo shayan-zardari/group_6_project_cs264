@@ -46,7 +46,19 @@ export default function CalendarGrid() {
 
     setTasks((prev) => ({
       ...prev,
-      [key]: { ...task, ...selectedSlot },
+      [key]: (() => {
+        const existing = prev[key];
+        const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
+        return [
+          ...list,
+          {
+            id: `t-${key}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+            completed: false,
+            ...task,
+            ...selectedSlot,
+          },
+        ];
+      })(),
     }));
 
     closeModal();
@@ -73,7 +85,7 @@ export default function CalendarGrid() {
               <div className="calendar-time">{hour}</div>
               {DAYS.map((day) => {
                 const key = getSlotKey(day, hour);
-                const slotTask = tasks[key];
+                    const slotTasks = tasks[key] || [];
 
                 return (
                   <div
@@ -81,11 +93,14 @@ export default function CalendarGrid() {
                     className="calendar-cell"
                     onClick={() => openModal(day, hour)}
                   >
-                    {slotTask && (
-                      <div className={`task-badge ${slotTask.priority}`}>
-                        {slotTask.name}
-                      </div>
-                    )}
+                        {slotTasks.slice(0, 3).map((t) => (
+                          <div
+                            key={t.id || `${t.name}-${t.priority}`}
+                            className={`task-badge ${t.priority}`}
+                          >
+                            {t.name}
+                          </div>
+                        ))}
                   </div>
                 );
               })}
