@@ -104,6 +104,9 @@
 .app-shell {
   min-height: 100vh;
   background-color: var(--calendar-bg, #f9f9f9);
+  /* Grid lines: blend toward black from the theme bg so borders stay visible on pastels */
+  --calendar-grid-border: color-mix(in srgb, #000 24%, var(--calendar-bg, #f9f9f9));
+  --calendar-grid-border-muted: color-mix(in srgb, #000 16%, var(--calendar-bg, #f9f9f9));
 }
 
 footer {
@@ -216,7 +219,7 @@ footer > div {
   overflow-x: auto;   /* horizontal scroll on small screens */
   overflow-y: auto;   /* vertical scroll for hours */
   max-height: calc(100vh - 220px); /* leaves room for navbar + view header */
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--calendar-grid-border, #bbb);
   background-color: var(--calendar-bg, #f9f9f9);
 }
 
@@ -252,14 +255,14 @@ footer > div {
 /* Top-left empty cell */
 .calendar-corner {
   background-color: var(--calendar-bg, #f9f9f9);
-  border-bottom: 1px solid #ccc;
-  border-right: 1px solid #ccc;
+  border-bottom: 1px solid var(--calendar-grid-border, #bbb);
+  border-right: 1px solid var(--calendar-grid-border, #bbb);
 }
 
 /* Day headers */
 .calendar-day-header {
   background-color: var(--calendar-bg, #f9f9f9);
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--calendar-grid-border, #bbb);
   text-align: center;
   padding: 0.5rem;
   font-weight: bold;
@@ -275,8 +278,8 @@ footer > div {
 
 /* Time labels */
 .calendar-time {
-  border-right: 1px solid #ccc;
-  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid var(--calendar-grid-border, #bbb);
+  border-bottom: 1px solid var(--calendar-grid-border-muted, #c8c8c8);
   padding: 0.4rem 0.3rem;
   font-size: 0.85rem;
   text-align: right;
@@ -285,8 +288,8 @@ footer > div {
 
 /* Hour cells */
 .calendar-cell {
-  border-bottom: 1px solid #e0e0e0;
-  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--calendar-grid-border-muted, #c8c8c8);
+  border-right: 1px solid var(--calendar-grid-border-muted, #c8c8c8);
   height: 60px;
   cursor: pointer;
   background-color: var(--calendar-bg, #f9f9f9);
