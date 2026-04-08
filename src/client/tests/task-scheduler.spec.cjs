@@ -1,6 +1,4 @@
-
-
-import {test, expect} from "@playwright/test";
+const { test, expect } = require("@playwright/test");
 
 test.describe("Task Scheduler MVP", () => {
   test.beforeEach(async ({ page }) => {
@@ -22,13 +20,17 @@ test.describe("Task Scheduler MVP", () => {
 
     await page.getByRole("button", { name: "Add Task" }).click();
 
-    await page.getByLabel("Date").fill(taskDate);
+    // Target the first date input = task date
+    await page.locator(".modal input[type='date']").first().fill(taskDate);
+
     await page.getByLabel("Time").selectOption(taskTime);
     await page.getByLabel("Task Name").fill(taskName);
     await page.getByLabel("Description").fill(taskDescription);
     await page.getByLabel("Priority").selectOption("high");
     await page.getByLabel("Duration (minutes)").fill("45");
-    await page.getByLabel("Due date").fill(dueDate);
+
+    // Target the second date input = due date
+    await page.locator(".modal input[type='date']").nth(1).fill(dueDate);
 
     await page.getByRole("button", { name: "Save Task" }).click();
 
@@ -49,6 +51,8 @@ test.describe("Task Scheduler MVP", () => {
     const persistedTaskCard = page.locator(".home-task").filter({ hasText: taskName });
     await expect(persistedTaskCard).toBeVisible();
     await expect(persistedTaskCard.getByRole("checkbox")).toBeChecked();
+    await expect(persistedTaskCard).toContainText(`${taskDate} at ${taskTime}`);
+    await expect(persistedTaskCard).toContainText(`Due: ${dueDate}`);
   });
 
   test("user can switch calendar views and navigate pages", async ({ page }) => {
