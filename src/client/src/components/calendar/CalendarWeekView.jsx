@@ -4,6 +4,8 @@ import {
   HOURS,
   getSlotKey,
   getDateValueFromDate,
+  getTasksForSlot,
+  addTaskWithRules,
 } from "./taskStorage";
 
 export default function CalendarWeekView({
@@ -54,31 +56,28 @@ export default function CalendarWeekView({
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedSlot) return;
+const handleSubmit = (e) => {
+  e.preventDefault();
+  if (!selectedSlot) return;
 
-    const key = getSlotKey(selectedSlot.dateValue, selectedSlot.hour);
-    const id = `t-${selectedSlot.dateValue}-${selectedSlot.hour}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    setTasks((prev) => ({
-      ...prev,
-      [key]: (() => {
-        const existing = prev[key];
-        const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
-        return [
-          ...list,
-          {
-            id,
-            completed: false,
-            ...task,
-            ...selectedSlot,
-          },
-        ];
-      })(),
-    }));
+  const result = addTaskWithRules(tasks, {
+    dateValue: selectedSlot.dateValue,
+    hour: selectedSlot.hour,
+    name: task.name,
+    description: task.description,
+    priority: task.priority,
+    durationMinutes: task.durationMinutes,
+    dueDate: task.dueDate,
+  });
 
-    closeModal();
-  };
+  if (!result.ok) {
+    alert(result.message);
+    return;
+  }
+
+  setTasks(result.nextTasks);
+  closeModal();
+};
 
   const rangeLabel = `${weekDays[0].date.toLocaleDateString(undefined, {
     month: "short",
@@ -133,11 +132,7 @@ export default function CalendarWeekView({
               {weekDays.map((d) => {
                 const key = getSlotKey(d.dateValue, hour);
                 const existing = tasks[key];
-                const slotTasks = Array.isArray(existing)
-                  ? existing
-                  : existing
-                    ? [existing]
-                    : [];
+                const slotTasks = getTasksForSlot(tasks, key);
 
                 return (
                   <div
