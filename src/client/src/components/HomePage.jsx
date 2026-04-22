@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const PRIORITY_RANK = {
   high: 0,
@@ -11,7 +11,24 @@ function formatMaybeDueDate(dueDate) {
   return `Due: ${dueDate}`;
 }
 
+function collectAllTaskIds(tasks) {
+  const ids = new Set();
+  for (const slotTasks of Object.values(tasks)) {
+    const list = Array.isArray(slotTasks)
+      ? slotTasks
+      : slotTasks
+        ? [slotTasks]
+        : [];
+    for (const t of list) {
+      if (t.id) ids.add(t.id);
+    }
+  }
+  return ids;
+}
+
 export default function HomePage({ tasks, setTasks }) {
+  const [selected, setSelected] = useState(() => new Set());
+
   const allTasks = [];
   for (const slotTasks of Object.values(tasks)) {
     const list = Array.isArray(slotTasks)
@@ -32,23 +49,80 @@ export default function HomePage({ tasks, setTasks }) {
     return (a.hour || "").localeCompare(b.hour || "");
   });
 
-  const toggleComplete = (taskId, nextCompleted) => {
+  useEffect(() => {
+    const valid = collectAllTaskIds(tasks);
+    setSelected((prev) => new Set([...prev].filter((id) => valid.has(id))));
+  }, [tasks]);
+
+  const selectedTasks = allTasks.filter((t) => selected.has(t.id));
+  const allSelectedCompleted =
+    selectedTasks.length > 0 && selectedTasks.every((t) => t.completed);
+  const completeActionLabel = allSelectedCompleted
+    ? "Mark as Not Complete"
+    : "Mark as Complete";
+
+  const applyCompleteAction = () => {
+    if (selected.size === 0) return;
+    const target = new Set(selected);
+    const setCompletedTo = allSelectedCompleted ? false : true;
     setTasks((prev) => {
-      const copy = { ...prev };
-      for (const [slotKey, slotTasks] of Object.entries(copy)) {
+      const next = { ...prev };
+      for (const [slotKey, slotTasks] of Object.entries(next)) {
         const list = Array.isArray(slotTasks)
           ? slotTasks
           : slotTasks
             ? [slotTasks]
             : [];
-
-        copy[slotKey] = list.map((t) => {
-          if (t.id !== taskId) return t;
-          return { ...t, completed: nextCompleted };
-        });
+        next[slotKey] = list.map((t) =>
+          target.has(t.id) ? { ...t, completed: setCompletedTo } : t
+        );
       }
-      return copy;
+      return next;
     });
+  };
+
+  const toggleSelect = (taskId) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) next.delete(taskId);
+      else next.add(taskId);
+      return next;
+    });
+  };
+
+  const allIds = allTasks.map((t) => t.id);
+  const allSelected =
+    allIds.length > 0 && allIds.every((id) => selected.has(id));
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelected(new Set());
+      return;
+    }
+    setSelected(new Set(allIds));
+  };
+
+  const deleteSelected = () => {
+    if (selected.size === 0) return;
+    const remove = new Set(selected);
+    setTasks((prev) => {
+      const next = { ...prev };
+      for (const [slotKey, slotTasks] of Object.entries(next)) {
+        const list = Array.isArray(slotTasks)
+          ? slotTasks
+          : slotTasks
+            ? [slotTasks]
+            : [];
+        const filtered = list.filter((t) => !remove.has(t.id));
+        if (filtered.length === 0) {
+          delete next[slotKey];
+        } else {
+          next[slotKey] = filtered;
+        }
+      }
+      return next;
+    });
+    setSelected(new Set());
   };
 
   return (
@@ -58,22 +132,62 @@ export default function HomePage({ tasks, setTasks }) {
         <div className="home-subtitle">Sorted by priority</div>
       </div>
 
+      {allTasks.length > 0 && (
+        <div className="home-toolbar">
+          <button
+            type="button"
+            className="home-toolbar-btn"
+            onClick={toggleSelectAll}
+          >
+            {allSelected ? "Deselect all" : "Select all"}
+          </button>
+          <button
+            type="button"
+            className="home-toolbar-btn home-toolbar-btn--primary"
+            disabled={selected.size === 0}
+            onClick={applyCompleteAction}
+            aria-label={
+              selected.size === 0
+                ? "Select tasks to mark complete or not complete"
+                : `${completeActionLabel} ${selected.size} task(s)`
+            }
+          >
+            {completeActionLabel}
+            {selected.size > 0 ? ` (${selected.size})` : ""}
+          </button>
+          <button
+            type="button"
+            className="home-toolbar-btn home-toolbar-btn--danger"
+            disabled={selected.size === 0}
+            onClick={deleteSelected}
+          >
+            Delete selected
+            {selected.size > 0 ? ` (${selected.size})` : ""}
+          </button>
+        </div>
+      )}
+
       <div className="home-list">
         {allTasks.length === 0 && (
           <div className="home-empty">No tasks yet. Add one from the calendar.</div>
         )}
 
         {allTasks.map((t) => (
-          <div key={t.id} className="home-task">
-            <label className="home-task-row">
+          <div
+            key={t.id}
+            className={`home-task${t.completed ? " home-task--completed" : ""}`}
+          >
+            <div className="home-task-row">
               <input
+                className="home-task-select"
                 type="checkbox"
-                checked={Boolean(t.completed)}
-                onChange={(e) => toggleComplete(t.id, e.target.checked)}
+                checked={selected.has(t.id)}
+                onChange={() => toggleSelect(t.id)}
+                aria-label={`Select ${t.name || "task"}`}
               />
               <div className="home-task-content">
                 <div className="home-task-title">
-                  {t.name || "(Untitled)"}{" "}
+                  <span className="home-task-name">{t.name || "(Untitled)"}</span>{" "}
                   <span className={`home-priority home-priority--${t.priority}`}>
                     {String(t.priority || "medium")}
                   </span>
@@ -85,11 +199,10 @@ export default function HomePage({ tasks, setTasks }) {
                   <span>{formatMaybeDueDate(t.dueDate)}</span>
                 </div>
               </div>
-            </label>
+            </div>
           </div>
         ))}
       </div>
     </div>
   );
 }
-

@@ -7,10 +7,10 @@ import CalendarDayView from "./components/calendar/CalendarDayView";
 import CalendarMonthView from "./components/calendar/CalendarMonthView";
 import HomePage from "./components/HomePage";
 import {
-  getSlotKey,
   HOURS,
   loadTasks,
   saveTasks,
+  addTaskWithRules,
 } from "./components/calendar/taskStorage";
 
 export default function App() {
@@ -62,36 +62,29 @@ export default function App() {
     setAddModalOpen(false);
   };
 
-  const submitAddTask = (e) => {
-    e.preventDefault();
-    if (!addForm.dateValue || !addForm.hour) return;
+const submitAddTask = (e) => {
+  e.preventDefault();
+  if (!addForm.dateValue || !addForm.hour) return;
 
-    const key = getSlotKey(addForm.dateValue, addForm.hour);
-    const id = `t-${key}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    setTasks((prev) => ({
-      ...prev,
-      [key]: (() => {
-        const existing = prev[key];
-        const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
-        return [
-          ...list,
-          {
-            id,
-            completed: false,
-            name: addForm.name,
-            description: addForm.description,
-            priority: addForm.priority,
-            durationMinutes: addForm.durationMinutes,
-            dueDate: addForm.dueDate,
-            dateValue: addForm.dateValue,
-            hour: addForm.hour,
-          },
-        ];
-      })(),
-    }));
+  const result = addTaskWithRules(tasks, {
+    dateValue: addForm.dateValue,
+    hour: addForm.hour,
+    name: addForm.name,
+    description: addForm.description,
+    priority: addForm.priority,
+    durationMinutes: addForm.durationMinutes,
+    dueDate: addForm.dueDate,
+  });
 
-    closeAddModal();
-  };
+  if (!result.ok) {
+    alert(result.message);
+    return;
+  }
+
+  setTasks(result.nextTasks);
+  closeAddModal();
+};
+  
 
   return (
     <div className="app-shell" style={{ "--calendar-bg": calendarBg }}>
@@ -103,6 +96,7 @@ export default function App() {
         onCalendarBgChange={setCalendarBg}
       />
 
+      <div className="app-main">
       {page === "calendar" && (
         <>
           <div className="view-tabs">
@@ -274,6 +268,8 @@ export default function App() {
           </div>
         </div>
       )}
+
+      </div>
 
       <Footer onPageChange={setPage} />
     </div>

@@ -103,10 +103,20 @@
 
 .app-shell {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: var(--calendar-bg, #f9f9f9);
   /* Grid lines: blend toward black from the theme bg so borders stay visible on pastels */
+  --calendar-line-width: 2px;
   --calendar-grid-border: color-mix(in srgb, #000 24%, var(--calendar-bg, #f9f9f9));
-  --calendar-grid-border-muted: color-mix(in srgb, #000 16%, var(--calendar-bg, #f9f9f9));
+}
+
+/* Grows so the footer sits at the bottom of the viewport on short pages (About, etc.) */
+.app-main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 footer {
@@ -219,7 +229,7 @@ footer > div {
   overflow-x: auto;   /* horizontal scroll on small screens */
   overflow-y: auto;   /* vertical scroll for hours */
   max-height: calc(100vh - 220px); /* leaves room for navbar + view header */
-  border-top: 1px solid var(--calendar-grid-border, #bbb);
+  border-top: var(--calendar-line-width, 2px) solid var(--calendar-grid-border, #bbb);
   background-color: var(--calendar-bg, #f9f9f9);
 }
 
@@ -255,14 +265,14 @@ footer > div {
 /* Top-left empty cell */
 .calendar-corner {
   background-color: var(--calendar-bg, #f9f9f9);
-  border-bottom: 1px solid var(--calendar-grid-border, #bbb);
-  border-right: 1px solid var(--calendar-grid-border, #bbb);
+  border-bottom: var(--calendar-line-width, 2px) solid var(--calendar-grid-border, #bbb);
+  border-right: var(--calendar-line-width, 2px) solid var(--calendar-grid-border, #bbb);
 }
 
 /* Day headers */
 .calendar-day-header {
   background-color: var(--calendar-bg, #f9f9f9);
-  border-bottom: 1px solid var(--calendar-grid-border, #bbb);
+  border-bottom: var(--calendar-line-width, 2px) solid var(--calendar-grid-border, #bbb);
   text-align: center;
   padding: 0.5rem;
   font-weight: bold;
@@ -278,18 +288,18 @@ footer > div {
 
 /* Time labels */
 .calendar-time {
-  border-right: 1px solid var(--calendar-grid-border, #bbb);
-  border-bottom: 1px solid var(--calendar-grid-border-muted, #c8c8c8);
+  border-right: var(--calendar-line-width, 2px) solid var(--calendar-grid-border, #bbb);
+  border-bottom: var(--calendar-line-width, 2px) solid var(--calendar-grid-border, #bbb);
   padding: 0.4rem 0.3rem;
   font-size: 0.85rem;
   text-align: right;
   background-color: var(--calendar-bg, #f9f9f9);
 }
 
-/* Hour cells */
+/* Hour cells (same line weight and color as headers / time column) */
 .calendar-cell {
-  border-bottom: 2px solid #444;
-  border-right: 2px solid #444;
+  border-bottom: var(--calendar-line-width, 2px) solid var(--calendar-grid-border, #bbb);
+  border-right: var(--calendar-line-width, 2px) solid var(--calendar-grid-border, #bbb);
   height: 60px;
   cursor: pointer;
   background-color: var(--calendar-bg, #f9f9f9);
@@ -561,6 +571,55 @@ footer > div {
   margin-bottom: 1rem;
 }
 
+.home-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.home-toolbar-btn {
+  border: 1px solid #ccc;
+  background: #f0f0f0;
+  color: #333;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.home-toolbar-btn:hover:not(:disabled) {
+  background: #e4e4e4;
+}
+
+.home-toolbar-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.home-toolbar-btn--primary {
+  background: #2e7d32;
+  border-color: #1b5e20;
+  color: #fff;
+}
+
+.home-toolbar-btn--primary:hover:not(:disabled) {
+  background: #1b5e20;
+}
+
+.home-toolbar-btn--danger {
+  background: #e53935;
+  border-color: #c62828;
+  color: #fff;
+}
+
+.home-toolbar-btn--danger:hover:not(:disabled) {
+  background: #c62828;
+}
+
 .home-list {
   display: flex;
   flex-direction: column;
@@ -577,12 +636,28 @@ footer > div {
 .home-task-row {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: 0.5rem;
+}
+
+.home-task-select {
+  width: 1.1rem;
+  height: 1.1rem;
+  min-width: 1.1rem;
+  min-height: 1.1rem;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
   cursor: pointer;
+  accent-color: #4caf50;
+  vertical-align: top;
 }
 
 .home-task-content {
   flex: 1;
+}
+
+.home-task--completed .home-task-name {
+  text-decoration: line-through;
+  color: #666;
 }
 
 .home-task-title {
