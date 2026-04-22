@@ -96,6 +96,7 @@ const submitAddTask = (e) => {
         onCalendarBgChange={setCalendarBg}
       />
 
+      <div className="app-main">
       {page === "calendar" && (
         <>
           <div className="view-tabs">
@@ -267,6 +268,8 @@ const submitAddTask = (e) => {
           </div>
         </div>
       )}
+
+      </div>
 
       <Footer onPageChange={setPage} />
     </div>

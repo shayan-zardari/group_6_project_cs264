@@ -24,15 +24,6 @@ export default function Footer({ onPageChange }) {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        onPageChange("home");
-                      }}
-                    >
-                      Tasks
-                    </a>
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
                         onPageChange("calendar");
                       }}
                     >
