@@ -190,9 +190,51 @@ export function getTasksForDateValue(tasks, dateValue) {
   });
 }
 
+export function getTaskGroupsForDateValue(tasks, dateValue) {
+  const byStartTime = new Map();
+
+  for (const task of getTasksForDateValue(tasks, dateValue)) {
+    const key = `${task.dateValue}-${task.hour}`;
+    const existing = byStartTime.get(key) || {
+      id: key,
+      dateValue: task.dateValue,
+      hour: task.hour,
+      tasks: [],
+    };
+    existing.tasks.push(task);
+    byStartTime.set(key, existing);
+  }
+
+  return [...byStartTime.values()].map((group) => {
+    const tasksByDuration = [...group.tasks].sort((a, b) => {
+      const durationDiff =
+        normalizeDuration(b.durationMinutes) - normalizeDuration(a.durationMinutes);
+      if (durationDiff !== 0) return durationDiff;
+      return String(a.name || "").localeCompare(String(b.name || ""));
+    });
+    const longestTask = tasksByDuration[0];
+
+    return {
+      ...group,
+      tasks: tasksByDuration,
+      durationMinutes: normalizeDuration(longestTask?.durationMinutes),
+    };
+  });
+}
+
+export function getTaskGroupsStartingInHourSlot(tasks, dateValue, hour) {
+  const slotStart = parseHourToMinutes(hour);
+  const slotEnd = slotStart + 60;
+
+  return getTaskGroupsForDateValue(tasks, dateValue).filter((group) => {
+    const start = parseHourToMinutes(group.hour);
+    return start >= slotStart && start < slotEnd;
+  });
+}
+
 export function getTaskLayoutForDate(tasks, dateValue) {
   const layout = {};
-  const dayTasks = getTasksForDateValue(tasks, dateValue);
+  const dayTasks = getTaskGroupsForDateValue(tasks, dateValue);
   let active = [];
   let group = [];
   let groupEnd = -1;
@@ -206,7 +248,6 @@ export function getTaskLayoutForDate(tasks, dateValue) {
     );
 
     for (const item of group) {
-      if (!item.task.id) continue;
       layout[item.task.id] = {
         column: item.column,
         columnCount,

@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from "react";
+import CalendarTaskGroupBlock from "./CalendarTaskGroupBlock";
 import {
   DAYS,
   HOURS,
   getDateValueFromDate,
-  getTasksStartingInHourSlot,
+  getTaskGroupsStartingInHourSlot,
   getTaskLayoutForDate,
   addTaskWithRules,
-  normalizeDuration,
   parseHourToMinutes,
   taskStartMinutes,
 } from "./taskStorage";
@@ -68,20 +68,17 @@ export default function CalendarWeekView({
     });
   };
 
-  const getTaskBlockStyle = (task, hour) => {
+  const getTaskBlockStyle = (group, hour) => {
     const slotStart = parseHourToMinutes(hour);
-    const topMinutes = Math.max(0, taskStartMinutes(task) - slotStart);
-    const taskLayout = taskLayoutsByDate[task.dateValue] || {};
-    const layout = taskLayout[task.id] || { column: 0, columnCount: 1 };
+    const topMinutes = Math.max(0, taskStartMinutes(group) - slotStart);
+    const taskLayout = taskLayoutsByDate[group.dateValue] || {};
+    const layout = taskLayout[group.id] || { column: 0, columnCount: 1 };
     const width = 100 / layout.columnCount;
 
     return {
       top: `${(topMinutes / 60) * 100}%`,
-      height: `${(normalizeDuration(task.durationMinutes) / 60) * 100}%`,
       left: `calc(${layout.column * width}% + 2px)`,
       width: `calc(${width}% - 4px)`,
-      opacity: task.completed ? 0.55 : 1,
-      textDecoration: task.completed ? "line-through" : "none",
     };
   };
 
@@ -159,7 +156,7 @@ const handleSubmit = (e) => {
             <React.Fragment key={hour}>
               <div className="calendar-time">{hour}</div>
               {weekDays.map((d) => {
-                const slotTasks = getTasksStartingInHourSlot(
+                const slotTaskGroups = getTaskGroupsStartingInHourSlot(
                   tasks,
                   d.dateValue,
                   hour
@@ -169,18 +166,16 @@ const handleSubmit = (e) => {
                   <div
                     key={`${d.dateValue}-${hour}`}
                     className={`calendar-cell${
-                      slotTasks.length > 0 ? " calendar-cell--has-task" : ""
+                      slotTaskGroups.length > 0 ? " calendar-cell--has-task" : ""
                     }`}
                     onClick={() => openModal(d.dayName, d.dateValue, hour)}
                   >
-                    {slotTasks.map((t) => (
-                      <div
-                        key={t.id || `${t.name}-${t.priority}`}
-                        className={`task-badge calendar-task-block ${t.priority}`}
-                        style={getTaskBlockStyle(t, hour)}
-                      >
-                        {t.name}
-                      </div>
+                    {slotTaskGroups.map((group) => (
+                      <CalendarTaskGroupBlock
+                        key={group.id}
+                        group={group}
+                        style={getTaskBlockStyle(group, hour)}
+                      />
                     ))}
                   </div>
                 );

@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from "react";
+import CalendarTaskGroupBlock from "./CalendarTaskGroupBlock";
 import {
   HOURS,
   getDayNameFromDate,
   getDateValueFromDate,
-  getTasksStartingInHourSlot,
+  getTaskGroupsStartingInHourSlot,
   getTaskLayoutForDate,
   addTaskWithRules,
-  normalizeDuration,
   parseHourToMinutes,
   taskStartMinutes,
 } from "./taskStorage";
@@ -50,19 +50,16 @@ export default function CalendarDayView({
     });
   };
 
-  const getTaskBlockStyle = (task, hour) => {
+  const getTaskBlockStyle = (group, hour) => {
     const slotStart = parseHourToMinutes(hour);
-    const topMinutes = Math.max(0, taskStartMinutes(task) - slotStart);
-    const layout = taskLayout[task.id] || { column: 0, columnCount: 1 };
+    const topMinutes = Math.max(0, taskStartMinutes(group) - slotStart);
+    const layout = taskLayout[group.id] || { column: 0, columnCount: 1 };
     const width = 100 / layout.columnCount;
 
     return {
       top: `${(topMinutes / 60) * 100}%`,
-      height: `${(normalizeDuration(task.durationMinutes) / 60) * 100}%`,
       left: `calc(${layout.column * width}% + 2px)`,
       width: `calc(${width}% - 4px)`,
-      opacity: task.completed ? 0.55 : 1,
-      textDecoration: task.completed ? "line-through" : "none",
     };
   };
 
@@ -135,25 +132,27 @@ export default function CalendarDayView({
           </div>
 
           {HOURS.map((hour) => {
-            const slotTasks = getTasksStartingInHourSlot(tasks, dateValue, hour);
+            const slotTaskGroups = getTaskGroupsStartingInHourSlot(
+              tasks,
+              dateValue,
+              hour
+            );
 
             return (
               <React.Fragment key={hour}>
                 <div className="calendar-time">{hour}</div>
                 <div
                   className={`calendar-cell${
-                    slotTasks.length > 0 ? " calendar-cell--has-task" : ""
+                    slotTaskGroups.length > 0 ? " calendar-cell--has-task" : ""
                   }`}
                   onClick={() => openModal(hour)}
                 >
-                  {slotTasks.map((t) => (
-                    <div
-                      key={t.id || `${t.name}-${t.priority}`}
-                      className={`task-badge calendar-task-block ${t.priority}`}
-                      style={getTaskBlockStyle(t, hour)}
-                    >
-                      {t.name}
-                    </div>
+                  {slotTaskGroups.map((group) => (
+                    <CalendarTaskGroupBlock
+                      key={group.id}
+                      group={group}
+                      style={getTaskBlockStyle(group, hour)}
+                    />
                   ))}
                 </div>
               </React.Fragment>
