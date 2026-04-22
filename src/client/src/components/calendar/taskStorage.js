@@ -171,6 +171,77 @@ export function getTasksStartingInHourSlot(tasks, dateValue, hour) {
   return results;
 }
 
+export function getTasksForDateValue(tasks, dateValue) {
+  const results = [];
+
+  for (const value of Object.values(tasks)) {
+    const list = Array.isArray(value) ? value : value ? [value] : [];
+    for (const task of list) {
+      if (task.dateValue === dateValue) {
+        results.push(task);
+      }
+    }
+  }
+
+  return results.sort((a, b) => {
+    const startDiff = taskStartMinutes(a) - taskStartMinutes(b);
+    if (startDiff !== 0) return startDiff;
+    return taskEndMinutes(b) - taskEndMinutes(a);
+  });
+}
+
+export function getTaskLayoutForDate(tasks, dateValue) {
+  const layout = {};
+  const dayTasks = getTasksForDateValue(tasks, dateValue);
+  let active = [];
+  let group = [];
+  let groupEnd = -1;
+
+  const finishGroup = () => {
+    if (group.length === 0) return;
+
+    const columnCount = Math.max(
+      1,
+      ...group.map((item) => item.column + 1)
+    );
+
+    for (const item of group) {
+      if (!item.task.id) continue;
+      layout[item.task.id] = {
+        column: item.column,
+        columnCount,
+      };
+    }
+
+    active = [];
+    group = [];
+    groupEnd = -1;
+  };
+
+  for (const task of dayTasks) {
+    const start = taskStartMinutes(task);
+    const end = taskEndMinutes(task);
+
+    if (group.length > 0 && start >= groupEnd) {
+      finishGroup();
+    }
+
+    active = active.filter((item) => item.end > start);
+
+    let column = 0;
+    while (active.some((item) => item.column === column)) {
+      column += 1;
+    }
+
+    active.push({ column, end });
+    group.push({ task, column });
+    groupEnd = Math.max(groupEnd, end);
+  }
+
+  finishGroup();
+  return layout;
+}
+
 export function canAddTask(tasks, candidateTask) {
   const allTasks = [];
   for (const value of Object.values(tasks)) {

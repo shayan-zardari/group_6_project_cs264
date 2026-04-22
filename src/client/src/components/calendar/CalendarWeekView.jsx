@@ -4,6 +4,7 @@ import {
   HOURS,
   getDateValueFromDate,
   getTasksStartingInHourSlot,
+  getTaskLayoutForDate,
   addTaskWithRules,
   normalizeDuration,
   parseHourToMinutes,
@@ -41,6 +42,15 @@ export default function CalendarWeekView({
     });
   }, [weekStart]);
 
+  const taskLayoutsByDate = useMemo(() => {
+    return Object.fromEntries(
+      weekDays.map((day) => [
+        day.dateValue,
+        getTaskLayoutForDate(tasks, day.dateValue),
+      ])
+    );
+  }, [tasks, weekDays]);
+
   const openModal = (dayName, dateValue, hour) => {
     setSelectedSlot({ dayName, dateValue, hour });
     setModalOpen(true);
@@ -58,17 +68,18 @@ export default function CalendarWeekView({
     });
   };
 
-  const getTaskBlockStyle = (task, slotTasks, hour) => {
+  const getTaskBlockStyle = (task, hour) => {
     const slotStart = parseHourToMinutes(hour);
     const topMinutes = Math.max(0, taskStartMinutes(task) - slotStart);
-    const taskIndex = slotTasks.findIndex((t) => t.id === task.id);
-    const taskCount = Math.max(1, slotTasks.length);
+    const taskLayout = taskLayoutsByDate[task.dateValue] || {};
+    const layout = taskLayout[task.id] || { column: 0, columnCount: 1 };
+    const width = 100 / layout.columnCount;
 
     return {
       top: `${(topMinutes / 60) * 100}%`,
       height: `${(normalizeDuration(task.durationMinutes) / 60) * 100}%`,
-      left: `${(taskIndex / taskCount) * 100}%`,
-      width: `${100 / taskCount}%`,
+      left: `calc(${layout.column * width}% + 2px)`,
+      width: `calc(${width}% - 4px)`,
       opacity: task.completed ? 0.55 : 1,
       textDecoration: task.completed ? "line-through" : "none",
     };
@@ -166,7 +177,7 @@ const handleSubmit = (e) => {
                       <div
                         key={t.id || `${t.name}-${t.priority}`}
                         className={`task-badge calendar-task-block ${t.priority}`}
-                        style={getTaskBlockStyle(t, slotTasks, hour)}
+                        style={getTaskBlockStyle(t, hour)}
                       >
                         {t.name}
                       </div>
