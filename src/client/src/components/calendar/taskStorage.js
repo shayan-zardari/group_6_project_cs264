@@ -33,21 +33,21 @@ export function getDayNameFromDate(date) {
   return DAYS[date.getDay()];
 }
 
-function parseHourToMinutes(hour) {
+export function parseHourToMinutes(hour) {
   const [h, m] = String(hour || "00:00").split(":").map(Number);
   return h * 60 + (m || 0);
 }
 
-function normalizeDuration(durationMinutes) {
+export function normalizeDuration(durationMinutes) {
   const n = Number(durationMinutes);
   return Number.isFinite(n) && n > 0 ? n : 60;
 }
 
-function taskStartMinutes(task) {
+export function taskStartMinutes(task) {
   return parseHourToMinutes(task.hour);
 }
 
-function taskEndMinutes(task) {
+export function taskEndMinutes(task) {
   return taskStartMinutes(task) + normalizeDuration(task.durationMinutes);
 }
 
@@ -144,6 +144,25 @@ export function getTasksForSlot(tasks, slotKey) {
       if (task.dateValue !== dateValue) continue;
       const covered = getCoveredHourSlots(task);
       if (covered.includes(hour)) {
+        results.push(task);
+      }
+    }
+  }
+
+  return results;
+}
+
+export function getTasksStartingInHourSlot(tasks, dateValue, hour) {
+  const slotStart = parseHourToMinutes(hour);
+  const slotEnd = slotStart + 60;
+  const results = [];
+
+  for (const value of Object.values(tasks)) {
+    const list = Array.isArray(value) ? value : value ? [value] : [];
+    for (const task of list) {
+      if (task.dateValue !== dateValue) continue;
+      const start = taskStartMinutes(task);
+      if (start >= slotStart && start < slotEnd) {
         results.push(task);
       }
     }

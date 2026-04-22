@@ -2,10 +2,12 @@ import React, { useMemo, useState } from "react";
 import {
   DAYS,
   HOURS,
-  getSlotKey,
   getDateValueFromDate,
-  getTasksForSlot,
+  getTasksStartingInHourSlot,
   addTaskWithRules,
+  normalizeDuration,
+  parseHourToMinutes,
+  taskStartMinutes,
 } from "./taskStorage";
 
 export default function CalendarWeekView({
@@ -54,6 +56,22 @@ export default function CalendarWeekView({
       durationMinutes: "",
       dueDate: "",
     });
+  };
+
+  const getTaskBlockStyle = (task, slotTasks, hour) => {
+    const slotStart = parseHourToMinutes(hour);
+    const topMinutes = Math.max(0, taskStartMinutes(task) - slotStart);
+    const taskIndex = slotTasks.findIndex((t) => t.id === task.id);
+    const taskCount = Math.max(1, slotTasks.length);
+
+    return {
+      top: `${(topMinutes / 60) * 100}%`,
+      height: `${(normalizeDuration(task.durationMinutes) / 60) * 100}%`,
+      left: `${(taskIndex / taskCount) * 100}%`,
+      width: `${100 / taskCount}%`,
+      opacity: task.completed ? 0.55 : 1,
+      textDecoration: task.completed ? "line-through" : "none",
+    };
   };
 
 const handleSubmit = (e) => {
@@ -130,36 +148,29 @@ const handleSubmit = (e) => {
             <React.Fragment key={hour}>
               <div className="calendar-time">{hour}</div>
               {weekDays.map((d) => {
-                const key = getSlotKey(d.dateValue, hour);
-                const existing = tasks[key];
-                const slotTasks = getTasksForSlot(tasks, key);
+                const slotTasks = getTasksStartingInHourSlot(
+                  tasks,
+                  d.dateValue,
+                  hour
+                );
 
                 return (
                   <div
                     key={`${d.dateValue}-${hour}`}
-                    className="calendar-cell"
+                    className={`calendar-cell${
+                      slotTasks.length > 0 ? " calendar-cell--has-task" : ""
+                    }`}
                     onClick={() => openModal(d.dayName, d.dateValue, hour)}
                   >
-                    {slotTasks.slice(0, 3).map((t) => (
+                    {slotTasks.map((t) => (
                       <div
                         key={t.id || `${t.name}-${t.priority}`}
-                        className={`task-badge ${t.priority}`}
-                        style={{
-                          opacity: t.completed ? 0.55 : 1,
-                          textDecoration: t.completed ? "line-through" : "none",
-                        }}
+                        className={`task-badge calendar-task-block ${t.priority}`}
+                        style={getTaskBlockStyle(t, slotTasks, hour)}
                       >
                         {t.name}
                       </div>
                     ))}
-                    {slotTasks.length > 3 && (
-                      <div
-                        className="task-badge"
-                        style={{ backgroundColor: "#666" }}
-                      >
-                        +{slotTasks.length - 3}
-                      </div>
-                    )}
                   </div>
                 );
               })}
