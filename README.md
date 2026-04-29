@@ -1,60 +1,58 @@
-### Final Project
+# Schedule System — CS 264 Final Project (Group 6)
 
-Roles:
-Shayan: Database Engineer, in charge of keeping track of commits and no intereference - Team Lead
-Souleymane: Backend Deveeloper, making sure all functionality is working and everything is working - Backend
-Ridone: Frontend Developer, making it visually proactive and css looking pretty and useable - Frontend
-Raheen: Frontend Developer, making it visually proactive and css looking pretty and useable - Frontend
-Angela: Frontend Developer, making it visually proactive and css looking pretty and useable - Frontend
+A browser-based scheduling and task-tracking app built with React and Vite. Users can create tasks, assign them to specific dates and times, set priorities and due dates, and view their schedule across day, week, and month calendar views.
 
-## Client — Local setup & run
+## Features
 
-**Prerequisites:**
+- **Calendar views** — switch between Day, Week, and Month layouts to navigate your schedule
+- **Task creation** — add tasks with a name, description, priority (high / medium / low), duration, scheduled time, and optional due date
+- **Conflict detection** — tasks in the same time slot are grouped and flagged automatically
+- **Priority-sorted task list** — the home page shows all tasks ranked by priority so the most urgent work is always visible first
+- **Complete & delete** — bulk-select tasks to mark them done or remove them
+- **Persistent storage** — tasks are saved to `localStorage` so your data survives page refreshes
 
-- **Node.js:** install Node.js (LTS recommended, e.g. v16+ or v18+).
-- **Package manager:** `npm` (bundled with Node) or `yarn`/`pnpm`.
+## Team
 
-**Quick start (development):**
+| Name | Role |
+|---|---|
+| Shayan | Team Lead |
+| Souleymane | Frontend Developer |
+| Ridone | Frontend Developer |
+| Raheen | Frontend Developer |
+| Angela | Frontend Developer |
 
-1. Open a terminal and change to the client folder:
+## Tech Stack
+
+- **React 19** — UI
+- **Vite 7** — dev server and build tool
+- **Playwright** — end-to-end tests
+
+## Local Setup
+
+**Prerequisites:** Node.js v16 or later (LTS recommended).
 
 ```
 cd src/client
-```
-
-2. Install dependencies:
-
-```
 npm install
-```
-
-3. Run the dev server:
-
-```
 npm run dev
 ```
 
-4. Open the app in your browser at `http://localhost:5173` (Vite's default port).
+Open `http://localhost:5173` in your browser.
 
-**Build & preview (production):**
+## Other Scripts
 
-```
-cd src/client
-npm run build
-npm run preview
-```
+| Command | Description |
+|---|---|
+| `npm run build` | Production build (output in `dist/`) |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run test:e2e` | Run Playwright end-to-end tests |
+| `npm run test:e2e:ui` | Open the Playwright UI runner |
+| `npm run test:e2e:headed` | Run tests in a visible browser |
 
-`npm run preview` serves the production build locally so you can verify the output.
+## Known Limitations
 
-**Linting:**
-
-```
-cd src/client
-npm run lint
-```
-
-**Notes:**
-
-- The client is a Vite + React app. Scripts available in [src/client/package.json](src/client/package.json).
-- Vite's default port is `5173`; change it in `vite.config.js` or by setting the `PORT` environment variable if needed.
-- If you use `yarn` or `pnpm`, replace `npm install` and `npm run ...` with the equivalent commands.
+- No user authentication — all data is local to the browser
+- No server or database — data does not sync across devices or browsers
+- Conflict detection groups overlapping tasks but does not block creation
+- No recurring task support

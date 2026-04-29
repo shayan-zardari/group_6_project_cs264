@@ -158,8 +158,24 @@ const submitAddTask = (e) => {
         <div className="simple-page">
           <h1>About</h1>
           <p>
-            This is a scheduling task tracker that helps you plan work inside a
-            busy calendar.
+            This app is your personal scheduling hub — built to help you stay on
+            top of everything that matters, from quick errands to long-term
+            projects, by combining a flexible calendar with a priority-driven
+            task list.
+          </p>
+          <p>
+            Add tasks directly to any time slot on the calendar and assign them
+            a priority level so the most critical work always rises to the top.
+            Switch between day, week, and month views to get the right level of
+            detail for how you plan. Each task can carry a name, description,
+            estimated duration, and an optional due date, giving you everything
+            you need to plan realistically.
+          </p>
+          <p>
+            Head to the home page to review all your tasks sorted by priority,
+            mark items complete as you finish them, or remove anything that no
+            longer applies. Everything is saved locally in your browser, so your
+            schedule is always ready when you are.
           </p>
         </div>
       )}
