@@ -73,6 +73,27 @@ function overlaps(taskA, taskB) {
     taskEndMinutes(taskA) > taskStartMinutes(taskB);
 }
 
+function validateTaskWithinDay(task) {
+  const start = taskStartMinutes(task);
+  const end = taskEndMinutes(task);
+
+  if (start < 0 || start >= 24 * 60) {
+    return {
+      ok: false,
+      message: "Task start time must be between 00:00 and 23:00.",
+    };
+  }
+
+  if (end > 24 * 60) {
+    return {
+      ok: false,
+      message: "Duration too long for the day limit. Calendar hours run from 00:00 to 23:59.",
+    };
+  }
+
+  return { ok: true };
+}
+
 export function loadTasks() {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (!stored) return {};
@@ -283,7 +304,13 @@ export function getTaskLayoutForDate(tasks, dateValue) {
   return layout;
 }
 
-export function canAddTask(tasks, candidateTask) {
+export function canAddTask(tasks, candidateTask, options = {}) {
+  const { ignoreTaskId } = options;
+  const dayCheck = validateTaskWithinDay(candidateTask);
+  if (!dayCheck.ok) {
+    return dayCheck;
+  }
+
   const allTasks = [];
   for (const value of Object.values(tasks)) {
     const list = Array.isArray(value) ? value : value ? [value] : [];
@@ -291,6 +318,7 @@ export function canAddTask(tasks, candidateTask) {
   }
 
   for (const existing of allTasks) {
+    if (ignoreTaskId && existing.id === ignoreTaskId) continue;
     if (!overlaps(existing, candidateTask)) continue;
 
     const existingHigh = existing.priority === "high";
@@ -341,4 +369,64 @@ export function addTaskWithRules(tasks, taskData) {
       [startKey]: [...list, candidateTask],
     },
   };
+}
+
+export function updateTaskWithRules(tasks, taskId, taskData) {
+  let existingTask = null;
+  let existingSlotKey = null;
+
+  for (const [slotKey, value] of Object.entries(tasks)) {
+    const list = Array.isArray(value) ? value : value ? [value] : [];
+    const found = list.find((task) => task.id === taskId);
+    if (found) {
+      existingTask = found;
+      existingSlotKey = slotKey;
+      break;
+    }
+  }
+
+  if (!existingTask || !existingSlotKey) {
+    return { ok: false, message: "That task could not be found." };
+  }
+
+  const candidateTask = {
+    ...existingTask,
+    name: taskData.name || "",
+    description: taskData.description || "",
+    priority: taskData.priority || "medium",
+    durationMinutes: normalizeDuration(taskData.durationMinutes),
+    dueDate: taskData.dueDate || "",
+    dateValue: taskData.dateValue,
+    hour: taskData.hour,
+  };
+
+  const check = canAddTask(tasks, candidateTask, { ignoreTaskId: taskId });
+  if (!check.ok) {
+    return check;
+  }
+
+  const nextTasks = { ...tasks };
+  const previousList = Array.isArray(nextTasks[existingSlotKey])
+    ? nextTasks[existingSlotKey]
+    : nextTasks[existingSlotKey]
+      ? [nextTasks[existingSlotKey]]
+      : [];
+  const filteredPrevious = previousList.filter((task) => task.id !== taskId);
+
+  if (filteredPrevious.length === 0) {
+    delete nextTasks[existingSlotKey];
+  } else {
+    nextTasks[existingSlotKey] = filteredPrevious;
+  }
+
+  const nextSlotKey = getSlotKey(candidateTask.dateValue, candidateTask.hour);
+  const nextList = Array.isArray(nextTasks[nextSlotKey])
+    ? nextTasks[nextSlotKey]
+    : nextTasks[nextSlotKey]
+      ? [nextTasks[nextSlotKey]]
+      : [];
+
+  nextTasks[nextSlotKey] = [...nextList, candidateTask];
+
+  return { ok: true, nextTasks };
 }
