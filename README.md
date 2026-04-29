@@ -95,8 +95,7 @@ The shipped project is a client-side single-page app. There is no active backend
 |-- README.md
 |-- docs/
 |   |-- project-design-document.md
-|   |-- test-strategy.md
-|   `-- testing-strategy.md
+|   `-- test-strategy.md
 |-- M4_Roadmap.md
 `-- src/
     |-- backend/
@@ -260,4 +259,3 @@ This roadmap reflects the project as it exists now and the most sensible next st
 - [Project Design Document](./docs/project-design-document.md)
 - [M4 Roadmap](./M4_Roadmap.md)
 - [Test Strategy](./docs/test-strategy.md)
-- [Testing Strategy](./docs/testing-strategy.md)
