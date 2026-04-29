@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { HOURS, updateTaskWithRules } from "./calendar/taskStorage";
 
 const PRIORITY_RANK = {
   high: 0,
@@ -28,6 +29,16 @@ function collectAllTaskIds(tasks) {
 
 export default function HomePage({ tasks, setTasks }) {
   const [selected, setSelected] = useState(() => new Set());
+  const [editTaskId, setEditTaskId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    dateValue: "",
+    hour: "09:00",
+    name: "",
+    description: "",
+    priority: "medium",
+    durationMinutes: "",
+    dueDate: "",
+  });
 
   const allTasks = [];
   for (const slotTasks of Object.values(tasks)) {
@@ -125,6 +136,46 @@ export default function HomePage({ tasks, setTasks }) {
     setSelected(new Set());
   };
 
+  const openEditModal = (task) => {
+    setEditTaskId(task.id);
+    setEditForm({
+      dateValue: task.dateValue || "",
+      hour: task.hour || "09:00",
+      name: task.name || "",
+      description: task.description || "",
+      priority: task.priority || "medium",
+      durationMinutes: String(task.durationMinutes || ""),
+      dueDate: task.dueDate || "",
+    });
+  };
+
+  const closeEditModal = () => {
+    setEditTaskId(null);
+    setEditForm({
+      dateValue: "",
+      hour: "09:00",
+      name: "",
+      description: "",
+      priority: "medium",
+      durationMinutes: "",
+      dueDate: "",
+    });
+  };
+
+  const submitEditTask = (e) => {
+    e.preventDefault();
+    if (!editTaskId || !editForm.dateValue || !editForm.hour) return;
+
+    const result = updateTaskWithRules(tasks, editTaskId, editForm);
+    if (!result.ok) {
+      alert(result.message);
+      return;
+    }
+
+    setTasks(result.nextTasks);
+    closeEditModal();
+  };
+
   return (
     <div className="home-page">
       <div className="home-header">
@@ -186,23 +237,140 @@ export default function HomePage({ tasks, setTasks }) {
                 aria-label={`Select ${t.name || "task"}`}
               />
               <div className="home-task-content">
-                <div className="home-task-title">
-                  <span className="home-task-name">{t.name || "(Untitled)"}</span>{" "}
-                  <span className={`home-priority home-priority--${t.priority}`}>
-                    {String(t.priority || "medium")}
-                  </span>
+                <div className="home-task-header">
+                  <div className="home-task-title">
+                    <span className="home-task-name">{t.name || "(Untitled)"}</span>{" "}
+                    <span className={`home-priority home-priority--${t.priority}`}>
+                      {String(t.priority || "medium")}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="home-task-edit"
+                    onClick={() => openEditModal(t)}
+                  >
+                    Edit
+                  </button>
                 </div>
                 <div className="home-task-meta">
                   <span>
                     {t.dateValue ? `${t.dateValue} at ${t.hour}` : `at ${t.hour}`}
                   </span>
                   <span>{formatMaybeDueDate(t.dueDate)}</span>
+                  {t.description ? <span>{t.description}</span> : null}
                 </div>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {editTaskId && (
+        <div className="modal-overlay" onClick={closeEditModal}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Edit Task</h2>
+            <form onSubmit={submitEditTask}>
+              <label>
+                Date
+                <input
+                  type="date"
+                  required
+                  value={editForm.dateValue}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, dateValue: e.target.value })
+                  }
+                />
+              </label>
+
+              <label>
+                Time
+                <select
+                  value={editForm.hour}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, hour: e.target.value })
+                  }
+                >
+                  {HOURS.map((hour) => (
+                    <option key={hour} value={hour}>
+                      {hour}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                Task Name
+                <input
+                  type="text"
+                  required
+                  value={editForm.name}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, name: e.target.value })
+                  }
+                />
+              </label>
+
+              <label>
+                Description
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, description: e.target.value })
+                  }
+                />
+              </label>
+
+              <label>
+                Priority
+                <select
+                  value={editForm.priority}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, priority: e.target.value })
+                  }
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </label>
+
+              <label>
+                Duration (minutes)
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  required
+                  value={editForm.durationMinutes}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, durationMinutes: e.target.value })
+                  }
+                />
+              </label>
+
+              <label>
+                Due date
+                <input
+                  type="date"
+                  value={editForm.dueDate}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, dueDate: e.target.value })
+                  }
+                />
+              </label>
+
+              <div className="modal-actions">
+                <button type="button" onClick={closeEditModal}>
+                  Cancel
+                </button>
+                <button type="submit" className="primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

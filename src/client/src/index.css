@@ -783,6 +783,13 @@ footer > div {
   flex: 1;
 }
 
+.home-task-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
 .home-task--completed .home-task-name {
   text-decoration: line-through;
   color: #666;
@@ -817,6 +824,22 @@ footer > div {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+}
+
+.home-task-edit {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  color: #333;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-family: inherit;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.home-task-edit:hover {
+  background: #e4e4e4;
 }
 
 .home-empty {
